@@ -12,6 +12,7 @@
  * 1st element : text of the layer
  * 2nd element : sequence number, starting from 10001, assigned after sorting
  * 3rd / 4th   : X / Y of the text's top-left corner in px, from the document's top-left
+ * comment     : name of the text color (e.g. -- blue), to tell apart layers with the same text
  *
  * Based on https://github.com/pivanov/photoshop-scripts (Export All Text Layers)
  */
@@ -102,8 +103,24 @@ function exportDocument(doc, silent) {
   data = [];
   app.activeDocument = doc;
   collectText(doc);
+  applyCanvasScale(doc);
   data.sort(compareEntries);
   return saveResults(doc, silent);
+}
+
+// The maps are designed at 512x512; a 1024x1024 canvas is exported at half size.
+function applyCanvasScale(doc) {
+  var w = Math.round(doc.width.as("px"));
+  var h = Math.round(doc.height.as("px"));
+
+  if (w != 1024 || h != 1024) {
+    return;
+  }
+
+  for (var i = 0; i < data.length; i++) {
+    data[i].x = Math.round(data[i].x / 2 * 10) / 10;
+    data[i].y = Math.round(data[i].y / 2 * 10) / 10;
+  }
 }
 
 function collectText(el) {
@@ -129,7 +146,8 @@ function collectText(el) {
         data.push({
           text : text,
           x : Math.round(b.left),
-          y : Math.round(b.top)
+          y : Math.round(b.top),
+          color : getColorName(layer)
         });
       } catch (e) {
         ;
@@ -159,6 +177,73 @@ function getBoundsNoEffects(layer) {
     var b = layer.bounds;
     return { left : b[0].as("px"), top : b[1].as("px") };
   }
+}
+
+// Name of the text color, e.g. "blue". Returns "" if the color can't be read (e.g. mixed styles).
+function getColorName(layer) {
+  try {
+    var c = layer.textItem.color.rgb;
+    return nameFromRgb(c.red, c.green, c.blue);
+  } catch (e) {
+    return "";
+  }
+}
+
+function nameFromRgb(r, g, b) {
+  var max = Math.max(r, g, b);
+  var min = Math.min(r, g, b);
+  var l = (max + min) / 510;
+  var d = max - min;
+  var s = d === 0 ? 0 : d / (255 - Math.abs(max + min - 255));
+
+  if (l < 0.12) {
+    return "black";
+  }
+  if (l > 0.92 && s < 0.5) {
+    return "white";
+  }
+  if (s < 0.15) {
+    return "gray";
+  }
+
+  var h;
+  if (max == r) {
+    h = ((g - b) / d) % 6;
+  } else if (max == g) {
+    h = (b - r) / d + 2;
+  } else {
+    h = (r - g) / d + 4;
+  }
+  h = (h * 60 + 360) % 360;
+
+  if (h >= 15 && h < 45 && l < 0.4) {
+    return "brown";
+  }
+  if (h < 15 || h >= 345) {
+    return "red";
+  }
+  if (h < 45) {
+    return "orange";
+  }
+  if (h < 70) {
+    return "yellow";
+  }
+  if (h < 165) {
+    return "green";
+  }
+  if (h < 195) {
+    return "cyan";
+  }
+  if (h < 255) {
+    return "blue";
+  }
+  if (h < 290) {
+    return "purple";
+  }
+  if (h < 345) {
+    return "pink";
+  }
+  return "red";
 }
 
 function trim(s) {
@@ -245,7 +330,7 @@ function saveResults(doc, silent) {
   outputFile.writeln(INDENT + tableName + " = {");
   for (var i = 0; i < data.length; i++) {
     var d = data[i];
-    outputFile.writeln(INDENT + INDENT + "{ " + luaString(d.text) + ", " + (START_ID + i) + ", " + d.x + ", " + d.y + " },");
+    outputFile.writeln(INDENT + INDENT + "{ " + luaString(d.text) + ", " + (START_ID + i) + ", " + d.x + ", " + d.y + " }," + (d.color ? " -- " + d.color : ""));
   }
   outputFile.writeln(INDENT + "},");
 

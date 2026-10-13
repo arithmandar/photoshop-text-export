@@ -10,8 +10,8 @@ The result is saved next to the PSD, with the same name and a `.lua` extension. 
 
 ```lua
     BlackrockMountainEnt = {
-        { "A", 10001, 271, 182 },
-        { "B", 10002, 305, 240 },
+        { "A", 10001, 271, 182 }, -- blue
+        { "B", 10002, 305, 240 }, -- purple
     },
 ```
 
@@ -20,7 +20,8 @@ The result is saved next to the PSD, with the same name and a `.lua` extension. 
 | Table name | PSD file name without extension |
 | 1st | Text of the layer |
 | 2nd | Sequence number, starting at `10001`, assigned after sorting |
-| 3rd / 4th | X / Y in px of the text's top-left corner, from the document's top-left (layer effects such as stroke, glow and shadow are ignored, matching the Properties panel) |
+| 3rd / 4th | X / Y in px of the text's top-left corner, from the document's top-left (layer effects such as stroke, glow and shadow are ignored, matching the Properties panel). If the canvas is 1024x1024, the values are divided by 2 to match the original 512x512 design, keeping one decimal (e.g. 241, 920 becomes 120.5, 460). |
+| Comment | Approximate name of the text color (black, white, gray, red, orange, yellow, green, cyan, blue, purple, pink, brown), useful for telling apart layers with the same text. Omitted if the color can't be read (e.g. mixed styles). |
 
 ### Details
 
