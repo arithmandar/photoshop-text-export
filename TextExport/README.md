@@ -1,6 +1,8 @@
-# Hey new users!
+# History
 
-This script is super old. It was 4 years old when I adapted it from bram.us back in 2012, so if it doesn't work you're on your own!
+Forked from https://github.com/omgmog/photoshop-text-export at 2026/10/13.
+omgmog's (Max Glenister) last update was already 14 years ago.
+I have fixed it to support the latest version of Photoshop. So, have fun with it.
 
 ## Photoshop Text Export
 
@@ -13,10 +15,15 @@ This is based on the 'PS_BRAMUS Text Export 1.3' script from [bram.us](http://ww
 
 ### Installation
 
-1. Copy `Text Export.jsx` to your Photoshop Scripts folder (`/Applications/Adobe Photoshop CS4/Presets/Scripts/`)
+1. Copy `Text Export.jsx` to your Photoshop Scripts folder 
+
+  Windows for example: 
+  
+  `C:\Program Files\Adobe\Adobe Photoshop 2026\Presets\Scripts\`
+
 2. Start (or Re-launch) Photoshop
 3. Go to the `File` menu
 4. Go to the `Script` menu
 5. Click `Text Export` and select a place to save your output
 
-This might not work in Adobe Photoshop CS6.
+

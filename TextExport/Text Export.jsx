@@ -145,14 +145,19 @@
 						// additional exports added by Max Glenister for font styles 
 						if(currentLayer.textItem.contents){
 							fileOut.writeln('LayerStyles:');
-							fileOut.writeln('* capitalization: '+(currentLayer.textItem.capitalization=="TextCase.NORMAL"?"normal":"uppercase"));
-							fileOut.writeln('* color: #'+(currentLayer.textItem.color.rgb.hexValue?currentLayer.textItem.color.rgb.hexValue:''));
-							fileOut.writeln('* fauxBold: '+(currentLayer.textItem.fauxBold?currentLayer.textItem.fauxBold:''));
-							fileOut.writeln('* fauxItalic: '+(currentLayer.textItem.fauxItalic?currentLayer.textItem.fauxItalic:''));
-							fileOut.writeln('* font: '+currentLayer.textItem.font);
+							var ti = currentLayer.textItem;
+							// Some properties throw (error 8800) for mixed-style or unsupported layers
+							var safe = function (fn) { try { var v = fn(); return (v === undefined || v === null) ? '' : v; } catch (e) { return ''; } };
+							var cap = safe(function () { return ti.capitalization; });
+							var capText = cap === '' ? '' : (cap == TextCase.NORMAL ? 'normal' : (cap == TextCase.ALLCAPS ? 'uppercase' : (cap == TextCase.SMALLCAPS ? 'smallcaps' : String(cap))));
+							fileOut.writeln('* capitalization: ' + capText);
+							fileOut.writeln('* color: #' + safe(function () { return ti.color.rgb.hexValue; }));
+							fileOut.writeln('* fauxBold: ' + safe(function () { return ti.fauxBold; }));
+							fileOut.writeln('* fauxItalic: ' + safe(function () { return ti.fauxItalic; }));
+							fileOut.writeln('* font: ' + safe(function () { return ti.font; }));
 							//fileOut.writeln('leading: '+(currentLayer.textItem.leading=='auto-leading'?'auto':currentLayer.textItem.leading));
-							fileOut.writeln('* size: '+currentLayer.textItem.size);
-							fileOut.writeln('* tracking: '+(currentLayer.textItem.fauxItalic?currentLayer.textItem.fauxItalic:''));
+							fileOut.writeln('* size: ' + safe(function () { return ti.size; }));
+							fileOut.writeln('* tracking: ' + safe(function () { return ti.tracking; }));
 							fileOut.writeln('');
 						}
 					}
